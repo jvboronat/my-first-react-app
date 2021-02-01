@@ -4,11 +4,11 @@ import Button from './Button'
 
 // rface
 
-export const Header = ({title, onClick}) => {
+export const Header = ({title, onAdd, showAddTask}) => {
     return (
         <header className="header">
             <h1>{title}</h1>
-            <Button text ='Add' color='green' onClick={onClick}/>
+            <Button text ={showAddTask ? 'Hide':'Add'} color={showAddTask ? 'red':'green'}  onClick={onAdd}/>
             
         </header>
     )

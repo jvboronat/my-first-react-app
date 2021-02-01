@@ -1,14 +1,35 @@
 import { useState } from "react";
 
-const AddTask = ({ addTask }) => {
+const AddTask = ({ onAdd }) => {
   const [text, setText] = useState("");
   const [day, setDay] = useState("");
   const [reminder, setReminder] = useState(false);
 
-  //
+  // Eniendo que aquí lo que hacemos el implementar un método
+  // para realizar la validación de lo introducido en el
+  // formulario
+
+  const onSubmit = (e) => {
+    e.preventDefault()
+
+    if (!text)
+    {
+      alert('Please add a Task')
+      return
+    }
+
+    //Devuelvo el objeto
+    onAdd({text, day, reminder})
+
+    setText('')
+    setDay('')
+    setReminder(false)
+  }
+
+
 
   return (
-    <form className="add-form" onSubmit={(e) => addTask(e)}>
+    <form className="add-form" onSubmit={(e) => onSubmit(e)}>
       <div className="form-control">
         <label>Task</label>
         <input
