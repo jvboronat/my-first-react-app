@@ -30,25 +30,83 @@ function App() {
     return data
   };
 
-  const onDelete = (id) => {
-    //console.log("OnDelete", id);
+  const getTask = async (id) => {
+
+    const res = await fetch(`http://localhost:5000/tasks/${id}`)
+    const task = await res.json()
+
+    return task
+  }
+
+  const updateTask = async (task, method_name) => {
+    await fetch(`http://localhost:5000/tasks/${task.id}`
+    ,
+    {
+      method: method_name,
+      headers: {"Content-Type": "application/json",},
+      body: JSON.stringify(task)
+    }
+    )
+    
+  }
+
+  const onDelete = async(id) => {
+    //console.log("OnDelete", id);    
+    
+    // Obtengo la task
+
+    const task = await getTask(id)
+
+    console.log(task.id)
+
+    await updateTask(task,'DELETE')
+
+    // Ahora tengo que llamar a un metodo DELETE PARA BORRAR LOS DATOS DEL SERVIDOR json
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const addTask = (task) => {
-    const id = Math.floor(Math.random() * 10000) + 1;
-    task.id = id;
+  const addTask = async(task) => {
+
+    // Esto ya no hará falta (lo de generar el id)
+    //const id = Math.floor(Math.random() * 10000) + 1;
+    //task.id = id;
+
+    const res = await fetch(`http://localhost:5000/tasks`
+    ,
+    {
+      method: 'POST',
+      headers: {"Content-Type": "application/json",},
+      body: JSON.stringify(task)
+    }
+    )
+
+    const newTask = await res.json()
+
+    console.log(newTask)
+    task.id = newTask.id
+
+    // haremos una llamada con un POST que creará los datos en el servidor
 
     setTasks([...tasks, task]);
     //console.log(tasks);
   };
 
-  const toggleReminder = (id) => {
-    //console.log("toogleReminder", id);
+  const toggleReminder = async(id) => {
+    //console.log("toogleRemindesr", id);
+
+    //Tendré que actualizar los datos del id correspondiente
+    // tengo que hacer un fetch para obtener los datos de ese id
+    // luego volveré hacer otra llamada fetch, en este caso para
+    // actualizar con un PUT
+
+    const taskUpdated = await getTask(id)
+    taskUpdated.reminder = !taskUpdated.reminder;
+
+    updateTask(taskUpdated,'PUT')
 
     setTasks(
       tasks.map((task) =>
-        task.id === id ? { ...task, reminder: !task.reminder } : task
+        task.id === id ? { ...task, reminder: taskUpdated.reminder } : task
       )
     );
   };
