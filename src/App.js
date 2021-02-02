@@ -3,6 +3,8 @@ import Header from "./components/Header";
 import Tasks from "./components/Tasks";
 import AddTask from "./components/AddTask";
 
+const url = 'http://localhost:5001'
+
 function App() {
   const [showAddTask, setShowAddTask] = useState(false);
 
@@ -23,7 +25,7 @@ function App() {
   },[]);
 
   const fetchTasks = async () => {
-    const res = await fetch('http://localhost:5000/tasks')
+    const res = await fetch(`${url }/tasks`)
 
     const data = await res.json()
 
@@ -32,14 +34,14 @@ function App() {
 
   const getTask = async (id) => {
 
-    const res = await fetch(`http://localhost:5000/tasks/${id}`)
+    const res = await fetch(`${url}/tasks/${id}`)
     const task = await res.json()
 
     return task
   }
 
   const updateTask = async (task, method_name) => {
-    await fetch(`http://localhost:5000/tasks/${task.id}`
+    await fetch(`${url}/tasks/${task.id}`
     ,
     {
       method: method_name,
@@ -71,7 +73,7 @@ function App() {
     //const id = Math.floor(Math.random() * 10000) + 1;
     //task.id = id;
 
-    const res = await fetch(`http://localhost:5000/tasks`
+    const res = await fetch(`${url}/tasks`
     ,
     {
       method: 'POST',
