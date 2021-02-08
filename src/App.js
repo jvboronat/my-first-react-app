@@ -1,91 +1,86 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Tasks from "./components/Tasks";
 import AddTask from "./components/AddTask";
+import Footer from "./components/Footer";
+import About from "./components/About";
 
-const url = 'http://localhost:5001'
+const url = "http://localhost:5001";
 
 function App() {
   const [showAddTask, setShowAddTask] = useState(false);
 
   const [tasks, setTasks] = useState([]);
 
+  // Esto es un método que se ejecuta cada vez que cambia: tasks o showAddTask el
+  // state que tiene asociado
+  // - Si ponemos [] significa que sólo se ejecuta una vez
+  // - Si ponemos taks se ejecutaría cada vea que cambie tasks
+
   useEffect(() => {
-
     const getTasks = async () => {
-      const taskFromServer = await fetchTasks()
+      const taskFromServer = await fetchTasks();
 
-      setTasks(taskFromServer)
-    }
- 
+      setTasks(taskFromServer);
+    };
 
-    getTasks()
-
-    
-  },[]);
+    getTasks();
+  }, []);
 
   const fetchTasks = async () => {
-    const res = await fetch(`${url }/tasks`)
+    const res = await fetch(`${url}/tasks`);
 
-    const data = await res.json()
+    const data = await res.json();
 
-    return data
+    return data;
   };
 
   const getTask = async (id) => {
+    const res = await fetch(`${url}/tasks/${id}`);
+    const task = await res.json();
 
-    const res = await fetch(`${url}/tasks/${id}`)
-    const task = await res.json()
-
-    return task
-  }
+    return task;
+  };
 
   const updateTask = async (task, method_name) => {
-    await fetch(`${url}/tasks/${task.id}`
-    ,
-    {
+    await fetch(`${url}/tasks/${task.id}`, {
       method: method_name,
-      headers: {"Content-Type": "application/json",},
-      body: JSON.stringify(task)
-    }
-    )
-    
-  }
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(task),
+    });
+  };
 
-  const onDelete = async(id) => {
-    //console.log("OnDelete", id);    
-    
+  const onDelete = async (id) => {
+    //console.log("OnDelete", id);
+
     // Obtengo la task
 
-    const task = await getTask(id)
+    const task = await getTask(id);
 
-    console.log(task.id)
+    console.log(task.id);
 
-    await updateTask(task,'DELETE')
+    await updateTask(task, "DELETE");
 
     // Ahora tengo que llamar a un metodo DELETE PARA BORRAR LOS DATOS DEL SERVIDOR json
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const addTask = async(task) => {
-
+  const addTask = async (task) => {
     // Esto ya no hará falta (lo de generar el id)
     //const id = Math.floor(Math.random() * 10000) + 1;
     //task.id = id;
 
-    const res = await fetch(`${url}/tasks`
-    ,
-    {
-      method: 'POST',
-      headers: {"Content-Type": "application/json",},
-      body: JSON.stringify(task)
-    }
-    )
+    const res = await fetch(`${url}/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(task),
+    });
 
-    const newTask = await res.json()
+    const newTask = await res.json();
 
-    console.log(newTask)
-    task.id = newTask.id
+    console.log(newTask);
+    task.id = newTask.id;
 
     // haremos una llamada con un POST que creará los datos en el servidor
 
@@ -93,7 +88,7 @@ function App() {
     //console.log(tasks);
   };
 
-  const toggleReminder = async(id) => {
+  const toggleReminder = async (id) => {
     //console.log("toogleRemindesr", id);
 
     //Tendré que actualizar los datos del id correspondiente
@@ -101,10 +96,10 @@ function App() {
     // luego volveré hacer otra llamada fetch, en este caso para
     // actualizar con un PUT
 
-    const taskUpdated = await getTask(id)
+    const taskUpdated = await getTask(id);
     taskUpdated.reminder = !taskUpdated.reminder;
 
-    updateTask(taskUpdated,'PUT')
+    updateTask(taskUpdated, "PUT");
 
     setTasks(
       tasks.map((task) =>
@@ -114,25 +109,40 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <Header
-        title="Task Tracker"
-        onAdd={() => setShowAddTask(!showAddTask)}
-        showAddTask={showAddTask}
-      />
-
-      {showAddTask && <AddTask onAdd={addTask} />}
-
-      {tasks.length !== 0 ? (
-        <Tasks
-          tasks={tasks}
-          onDelete={onDelete}
-          toggleReminder={toggleReminder}
+    <Router>
+      <div className="container">
+        <Header
+          title="Task Tracker"
+          onAdd={() => setShowAddTask(!showAddTask)}
+          showAddTask={showAddTask}
         />
-      ) : (
-        <h3>There is not tasks</h3>
-      )}
-    </div>
+
+        {showAddTask && <AddTask onAdd={addTask} />}
+
+
+        <Route
+          path="/"
+          exact
+          render={(props) => (
+            <>
+              {tasks.length !== 0 ? (
+                <Tasks
+                  tasks={tasks}
+                  onDelete={onDelete}
+                  toggleReminder={toggleReminder}
+                />
+              ) : (
+                <h3>There is not tasks</h3>
+              )}
+            </>
+          )}
+        />
+        
+        <Route path="/about" component={About} />
+
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
